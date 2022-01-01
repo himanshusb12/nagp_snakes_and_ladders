@@ -8,3 +8,8 @@ class Dice:
 
     def roll(self):
         return randint(self.min_num, self.max_num)
+
+    def got_one_more_roll(self, rolled_number):
+        if rolled_number == self.max_num:
+            return True
+        return False

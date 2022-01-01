@@ -5,7 +5,7 @@ from shared.utils import enter_a_valid_number
 
 
 DEFAULT_BOARD = {
-    'snakes': [(99, 2), (90, 76), (81, 33), (73, 56), (65, 11), (61, 40), (51, 27), (47, 19), (32, 10), (26, 17),
+    'snakes': [(99, 2), (90, 76), (81, 33), (73, 56), (65, 11), (61, 40), (51, 27), (47, 17), (32, 10), (26, 17),
                (20, 4), (19, 8)],
     'ladders': [(5, 34), (14, 98), (12, 21), (22, 75), (28, 41), (35, 45), (39, 89), (42, 67), (53, 69), (60, 88),
                 (66, 93), (78, 91)]
@@ -35,13 +35,21 @@ class Board:
                 1 > ladder.bottom or ladder.bottom > self.rows * self.columns):
             raise BoardException(f'A ladder can be placed within the board between 1 and {self.rows * self.columns}')
         if ladder.bottom in self.ladders:
-            raise BoardException(f'A ladder already present at the specified bottom location - {ladder.bottom}')
+            raise BoardException(f'A ladder bottom already present at the specified bottom location - {ladder.bottom}')
         if ladder.bottom in self.snakes:
             raise BoardException(f'A snake mouth already exists at the specified bottom location - {ladder.bottom}')
+        if ladder.bottom in [ladder.top for ladder in self.ladders.values()]:
+            raise BoardException(f'A ladder top already present at the specified bottom location - {ladder.bottom}')
+        if ladder.bottom in [snake.tail for snake in self.snakes.values()]:
+            raise BoardException(f'A snake tail already exists at the specified bottom location - {ladder.bottom}')
         if ladder.top in self.ladders:
-            raise BoardException(f'A ladder already present at the specified top location - {ladder.top}')
+            raise BoardException(f'A ladder bottom already present at the specified top location - {ladder.top}')
         if ladder.top in self.snakes:
             raise BoardException(f'A snake mouth already exists at the specified top location - {ladder.top}')
+        # if ladder.top in [ladder.top for ladder in self.ladders.values()]:
+        #     raise BoardException(f'A ladder top already present at the specified top location - {ladder.top}')
+        # if ladder.top in [snake.tail for snake in self.snakes.values()]:
+        #     raise BoardException(f'A snake tail already exists at the specified top location - {ladder.top}')
         return True
 
     def __is_valid_snake(self, snake):
@@ -49,13 +57,21 @@ class Board:
                 1 > snake.tail or snake.tail > self.rows * self.columns):
             raise BoardException(f'A snake can be placed within the board between 1 and {self.rows * self.columns}')
         if snake.mouth in self.ladders:
-            raise BoardException(f'A ladder already exist at the specified mouth location - {snake.mouth}')
+            raise BoardException(f'A ladder bottom already exist at the specified mouth location - {snake.mouth}')
         if snake.mouth in self.snakes:
-            raise BoardException(f'A snake already exist at the specified mouth location - {snake.mouth}')
+            raise BoardException(f'A snake mouth already exist at the specified mouth location - {snake.mouth}')
+        if snake.mouth in [ladder.top for ladder in self.ladders.values()]:
+            raise BoardException(f'A ladder top already exist at the specified mouth location - {snake.mouth}')
+        if snake.mouth in [snake.tail for snake in self.snakes.values()]:
+            raise BoardException(f'A snake tail already exist at the specified mouth location - {snake.mouth}')
         if snake.tail in self.ladders:
             raise BoardException(f'A ladder already exist at the specified tail location - {snake.tail}')
         if snake.tail in self.snakes:
             raise BoardException(f'A snake already exist at the specified tail location - {snake.tail}')
+        # if snake.tail in [ladder.top for ladder in self.ladders.values()]:
+        #     raise BoardException(f'A ladder top already exist at the specified tail location - {snake.tail}')
+        # if snake.tail in [snake.tail for snake in self.snakes.values()]:
+        #     raise BoardException(f'A snake tail already exist at the specified tail location - {snake.tail}')
         return True
 
     def default_setup(self):
@@ -103,7 +119,7 @@ class Board:
         updated_position = current_position + dice_roll
         if updated_position > self.rows * self.columns:
             print(f'>>>> This dice roll is moving the Player {player} out of the board, try again')
-            return
+            return False
         print(f'>>>> Moving Player {player} from {current_position} to new position: {updated_position} on the board')
         if updated_position in self.ladders:
             new_position = self.ladders[updated_position].top
@@ -116,6 +132,7 @@ class Board:
         else:
             new_position = updated_position
         self.player_positions[player] = new_position
+        return True
 
     def check_for_victory(self, player):
         if self.player_positions[player] == self.rows * self.columns:
