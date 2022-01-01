@@ -1,15 +1,13 @@
+from json import dump
+
+from numpy import append, array
+from pandas import concat, DataFrame
+
 from .ladder import Ladder
 from .snake import Snake
 from shared.exception import BoardException
 from shared.utils import enter_a_valid_number
-
-
-DEFAULT_BOARD = {
-    'snakes': [(99, 2), (90, 76), (81, 33), (73, 56), (65, 11), (61, 40), (51, 27), (47, 17), (32, 10), (26, 17),
-               (20, 4), (19, 8)],
-    'ladders': [(5, 34), (14, 98), (12, 21), (22, 75), (28, 41), (35, 45), (39, 89), (42, 67), (53, 69), (60, 88),
-                (66, 93), (78, 91)]
-}
+from shared.constants import DEFAULT_BOARD, GAME_DATA_FILE
 
 
 class Board:
@@ -18,7 +16,9 @@ class Board:
         self.columns = columns
         self.ladders = {}
         self.snakes = {}
-        self.player_positions = {player: 0 for player in range(1, num_of_players + 1)}
+        # self.player_positions = {player: 0 for player in range(1, num_of_players + 1)}
+        self.player_positions = {f'Player {player}': array([0], dtype=int) for player in range(1, num_of_players + 1)}
+        self.player_dice_rolls = {f'Player {player}': array([], dtype=int) for player in range(1, num_of_players + 1)}
 
     def add_ladder(self, bottom, top):
         ladder = Ladder(bottom=bottom, top=top)
@@ -115,7 +115,9 @@ class Board:
         print('>>>> Board setup completed')
 
     def move_player(self, player, dice_roll):
-        current_position = self.player_positions[player]
+        self.player_dice_rolls[f'Player {player}'] = append(self.player_dice_rolls[f'Player {player}'], int(dice_roll))
+        # current_position = self.player_positions[player]
+        current_position = self.player_positions[f'Player {player}'][-1]
         updated_position = current_position + dice_roll
         if updated_position > self.rows * self.columns:
             print(f'>>>> This dice roll is moving the Player {player} out of the board, try again')
@@ -131,11 +133,25 @@ class Board:
                   f'falling to {new_position} on the board')
         else:
             new_position = updated_position
-        self.player_positions[player] = new_position
+        # self.player_positions[player] = new_position
+        self.player_positions[f'Player {player}'] = append(self.player_positions[f'Player {player}'], new_position)
         return True
 
     def check_for_victory(self, player):
-        if self.player_positions[player] == self.rows * self.columns:
+        if self.player_positions[f'Player {player}'][-1] == self.rows * self.columns:
             print(f'>>>> HURRAYYYYY! Player {player} won the game')
             return True
         return False
+
+    def save_the_play(self):
+        game_data = {}
+        moves_df = DataFrame()
+        rolls_df = DataFrame()
+        for player, positions in self.player_positions.items():
+            moves_df = concat([moves_df, DataFrame(data={player: positions})], axis=1)
+        for player, data in self.player_dice_rolls.items():
+            rolls_df = concat([rolls_df, DataFrame(data={player: data})], axis=1)
+        game_data['moves'] = moves_df.to_json(orient='records')
+        game_data['rolls'] = rolls_df.to_json(orient='records')
+        with open(GAME_DATA_FILE, 'w') as file:
+            dump(game_data, file)

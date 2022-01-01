@@ -1,6 +1,8 @@
 from components.board import Board
 from components.dice import Dice
 from shared.utils import enter_a_valid_number_or_default
+from shared.stats import load_last_game
+from shared.constants import DEFAULT_BOARD, DEFAULT_DICE
 
 
 def play(board, dice, num_of_players):
@@ -19,6 +21,7 @@ def play(board, dice, num_of_players):
                 else:
                     print('>>>> Please roll a dice to move forward')
             if board.check_for_victory(player):
+                board.save_the_play()
                 return
 
 
@@ -30,8 +33,6 @@ def get_num_of_players():
                 print('>>>> You need at least 2 players to play a game')
                 continue
             break
-        # except KeyboardInterrupt:
-        #     return
         except:
             print('\t>>>> Enter a valid number of players')
     return num_of_players
@@ -40,24 +41,24 @@ def get_num_of_players():
 def get_num_of_rows_and_columns():
     rows = enter_a_valid_number_or_default('How many rows you want on your board? ')
     if rows == 'default':
-        rows = 10
+        rows = DEFAULT_BOARD['num_of_rows']
     cols = enter_a_valid_number_or_default('How many columns you want on your board? ')
     if cols == 'default':
-        cols = 10
+        cols = DEFAULT_BOARD['num_of_columns']
     return rows, cols
 
 
 def get_min_and_max_for_dice():
     min_num = enter_a_valid_number_or_default('What should be the minimum number on dice? ')
     if min_num == 'default':
-        min_num = 1
+        min_num = DEFAULT_DICE['min']
     max_num = enter_a_valid_number_or_default('What should be the maximum number on dice? ')
     if max_num == 'default':
-        max_num = 6
+        max_num = DEFAULT_DICE['max']
     return min_num, max_num
 
 
-def load():
+def load_menu():
     print('___________________________________________________________________________________________________________')
     print('\t\t\t\t\t SNAKES AND LADDERS \t\t\t\t\t\t\t\t')
     print('___________________________________________________________________________________________________________')
@@ -98,6 +99,7 @@ def load():
                 break
         elif user_selection == '3':
             print('Loading last game statistics')
+            load_last_game()
             break
         elif user_selection == '4':
             exit()
@@ -106,4 +108,4 @@ def load():
 
 
 if __name__ == '__main__':
-    load()
+    load_menu()
