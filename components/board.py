@@ -74,6 +74,8 @@ class Board:
         -------
         bool
         """
+        if ladder.top == ladder.bottom:
+            raise BoardException(f'A ladder bottom and top cannot be at the same location - {ladder.bottom}')
         if (1 > ladder.top or ladder.top > self.win_position or
                 1 > ladder.bottom or ladder.bottom > self.win_position):
             raise BoardException(f'A ladder can be placed within the board between 1 and {self.win_position}')
@@ -105,6 +107,8 @@ class Board:
         -------
         bool
         """
+        if snake.mouth == snake.tail:
+            raise BoardException(f'A snake mouth and tail cannot be at the same location - {snake.mouth}')
         if (1 > snake.mouth or snake.mouth > self.win_position or
                 1 > snake.tail or snake.tail > self.win_position):
             raise BoardException(f'A snake can be placed within the board between 1 and {self.win_position}')
@@ -113,17 +117,17 @@ class Board:
         if snake.mouth == self.win_position:
             raise BoardException(f"A snake mouth can't be present at the winning position")
         if snake.mouth in self.ladders:
-            raise BoardException(f'A ladder bottom already exist at the specified mouth location - {snake.mouth}')
+            raise BoardException(f'A ladder bottom already exists at the specified mouth location - {snake.mouth}')
         if snake.mouth in self.snakes:
-            raise BoardException(f'A snake mouth already exist at the specified mouth location - {snake.mouth}')
+            raise BoardException(f'A snake mouth already exists at the specified mouth location - {snake.mouth}')
         if snake.mouth in [ladder.top for ladder in self.ladders.values()]:
-            raise BoardException(f'A ladder top already exist at the specified mouth location - {snake.mouth}')
+            raise BoardException(f'A ladder top already exists at the specified mouth location - {snake.mouth}')
         if snake.mouth in [snake.tail for snake in self.snakes.values()]:
-            raise BoardException(f'A snake tail already exist at the specified mouth location - {snake.mouth}')
+            raise BoardException(f'A snake tail already exists at the specified mouth location - {snake.mouth}')
         if snake.tail in self.ladders:
-            raise BoardException(f'A ladder already exist at the specified tail location - {snake.tail}')
+            raise BoardException(f'A ladder bottom already exists at the specified tail location - {snake.tail}')
         if snake.tail in self.snakes:
-            raise BoardException(f'A snake already exist at the specified tail location - {snake.tail}')
+            raise BoardException(f'A snake mouth already exists at the specified tail location - {snake.tail}')
         return True
 
     def default_setup(self):
@@ -144,6 +148,9 @@ class Board:
         Prompts user to set a board with custom configurations
         """
         print(f'>>>> Manually configuring the board with {self.rows} rows and {self.columns} columns')
+        if self.win_position == 1:
+            print('>>>> Since there is only one block on the board, skipping the snakes and ladders configuration')
+            return
         num_of_ladders = enter_a_valid_number('\tQ. How many ladders do you want on board? ')
         if num_of_ladders > 0:
             print('\tFor ladders, bottom and top positions will be provided as comma separated, e.g. 2,98')

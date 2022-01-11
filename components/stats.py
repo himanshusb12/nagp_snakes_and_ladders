@@ -89,3 +89,4 @@ class GameStats:
             print(moves_data)
             print("\n\t\tPlayers' dice roll data")
             print(rolls_data)
+            print()
