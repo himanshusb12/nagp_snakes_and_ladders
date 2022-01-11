@@ -51,7 +51,7 @@ Rules
                 - A ladder top should not exist at the specified mouth location
                 - Another snake tail should not exist at the specified mouth location
                 - A ladder bottom should not exist at the specified tail location
-                - Another snake mouth already exist at the specified tail location
+                - Another snake mouth should not exist at the specified tail location
         - Ladders
             1. Number of ladders - as per choice
             2. Location of a ladder - provide a ladder position by providing it's bottom and top location in the console. Format - bottom, top
