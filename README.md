@@ -80,7 +80,7 @@ Rules
         
 3. How to Play?
     1. Requires at-least 2 players to start a game.  
-    2. Either laod default configuration automatically or set custom configurations manually for a game board and dice.
+    2. Either load default configuration automatically or set custom configurations manually for a game board and dice.
     3. On each player's turn, hit enter to roll a dice and follow the instructions on the console.
     
 4. Statistical Analysis
